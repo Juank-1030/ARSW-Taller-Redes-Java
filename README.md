@@ -63,10 +63,37 @@ src/
 mvn compile
 ```
 
-**Run a specific exercise** (once implemented):
+**Run the interactive launcher** (shows a menu to pick any exercise):
 ```bash
-mvn compile exec:java -Dexec.mainClass="edu.eci.arsw.networking.ejercicio#.URLInfo"
+# Using the unified script (Windows) — no argument
+run_ejercicio.bat
+
+# Using Maven directly
+mvn compile exec:java "-Dexec.mainClass=edu.eci.arsw.networking.WorkshopLauncher"
 ```
+
+**Run a specific exercise directly**:
+```bash
+# Using the unified script with exercise number (Windows)
+run_ejercicio.bat 1
+
+# Using Maven directly
+mvn compile exec:java "-Dexec.mainClass=edu.eci.arsw.networking.ejercicio1.URLInfo"
+```
+
+**Available commands:**
+
+| Command | Runs |
+|---------|------|
+| `run_ejercicio.bat` | Interactive menu — pick any exercise |
+| `run_ejercicio.bat 1` | Exercise 1 — URL Info Printer |
+| `run_ejercicio.bat 2` | Exercise 2 — URL Browser |
+| `run_ejercicio.bat 4_3_1` | Exercise 4.3.1 — Square Server |
+| `run_ejercicio.bat 4_3_2` | Exercise 4.3.2 — Trig Server |
+| `run_ejercicio.bat 4_4` | Exercise 4.4 — Basic HTTP Server |
+| `run_ejercicio.bat 4_5_1` | Exercise 4.5.1 — Multi-Request Web Server |
+| `run_ejercicio.bat 5_2_1` | Exercise 5.2.1 — Datagram Time Client |
+| `run_ejercicio.bat 6_4_1` | Exercise 6.4.1 — RMI Chat |
 
 **Run tests:**
 ```bash
@@ -142,10 +169,11 @@ Ref: seccion
 #### Run
 
 ```bash
-# Option 1 — using the batch script (Windows)
-run_ejercicio1.bat
+run_ejercicio.bat 1
+```
 
-# Option 2 — using Maven directly
+Or using Maven directly:
+```bash
 mvn compile exec:java "-Dexec.mainClass=edu.eci.arsw.networking.ejercicio1.URLInfo"
 ```
 
@@ -199,51 +227,145 @@ This is the foundation of web scraping and HTTP clients. The same pattern (open 
 #### Run
 
 ```bash
-# Option 1 — using the batch script (Windows)
-run_ejercicio2.bat
+run_ejercicio.bat 2
+```
 
-# Option 2 — using Maven directly
+Or using Maven directly:
+```bash
 mvn compile exec:java "-Dexec.mainClass=edu.eci.arsw.networking.ejercicio2.URLBrowser"
 ```
 
 ---
 
-### 4.3.1. Square Server
+### 4.3.1. Square Server ✅
 
-**Package:** `edu.eci.arsw.networking.ejercicio4_3_1`  
-**Status:** ⏳ Planned
+**Package:** `edu.eci.arsw.networking.ejercicio4_3_1` — **Completed**  
+**File:** `src/main/java/edu/eci/arsw/networking/ejercicio4_3_1/SquareServer.java`
 
-Build a **TCP server** (using `ServerSocket`) that:
-1. Listens on port `35000`
-2. Receives a number from a client
-3. Responds with the square of that number
-4. Stays alive to handle multiple sequential clients
+#### What it does
 
-**Key classes:** `java.net.ServerSocket`, `java.net.Socket`
+A TCP server that listens on port `35000`, receives a number from a client, and responds with the square of that number. This teaches the server side of socket programming — how to accept connections, read data from a client, and send a response back.
+
+#### Step-by-step implementation
+
+| Step | What we did | Why |
+|------|-------------|-----|
+| 1 | Import `java.net.ServerSocket` and `java.net.Socket` | `ServerSocket` waits for incoming connections; `Socket` represents the established connection |
+| 2 | Import `java.io.BufferedReader`, `InputStreamReader`, `PrintWriter`, `IOException` | These handle reading from and writing to the socket's input/output streams |
+| 3 | Create a `ServerSocket` on port `35000` inside a `try-catch` | `IOException` is thrown if the port is already in use or inaccessible |
+| 4 | Call `serverSocket.accept()` and wait for a client | `accept()` blocks until a client connects; returns a `Socket` for communication |
+| 5 | Wrap `socket.getOutputStream()` in a `PrintWriter` with auto-flush enabled | `println()` sends data to the client; auto-flush ensures each message is sent immediately |
+| 6 | Wrap `socket.getInputStream()` in `BufferedReader` via `InputStreamReader` | `readLine()` reads the client's message one line at a time |
+| 7 | Enter a loop: `while ((inputLine = in.readLine()) != null)` | Keeps the connection alive to handle multiple requests from the same client |
+| 8 | Parse the input as a `double` with `Double.parseDouble()` | Supports integer and decimal numbers; `NumberFormatException` is caught for invalid input |
+| 9 | Compute `number * number` and send it back with `out.println()` | The square operation is the core requirement of the exercise |
+| 10 | Check if input equals `"Bye."` to exit the loop | Provides a clean way for the client to terminate the connection |
+| 11 | Close all resources (`out`, `in`, `clientSocket`, `serverSocket`) | Frees system resources and port bindings |
+
+#### Why this matters
+
+This is the foundation of all TCP server applications. Every web server, database server, and chat server follows the same pattern:
+- Bind to a port → wait for connections → read client data → send a response → repeat.
+- The sequential single-client pattern is exactly how early HTTP/1.0 web servers worked.
+
+#### Key classes used
+
+| Class | Role |
+|-------|------|
+| `java.net.ServerSocket` | Listens for incoming TCP connections on a specific port |
+| `java.net.Socket` | Represents the communication endpoint after a connection is established |
+| `BufferedReader` | Reads text from the socket's input stream line by line |
+| `PrintWriter` | Writes text to the socket's output stream |
+| `Double.parseDouble()` | Converts a string to a numeric value for calculation |
+
+#### Run
+
+Start the server:
+```bash
+run_ejercicio.bat 4_3_1
+```
+
+Then connect with a TCP client (e.g., `ncat`, `telnet`, or another terminal):
+```bash
+ncat localhost 35000
+```
+
+Example interaction:
+```
+Client sends: 5     → Server responds: 25.0
+Client sends: Bye.  → Connection closes
+```
 
 ---
 
-### 4.3.2. Trig Server
+### 4.3.2. Trig Server ✅
 
-**Package:** `edu.eci.arsw.networking.ejercicio4_3_2`  
-**Status:** ⏳ Planned
+**Package:** `edu.eci.arsw.networking.ejercicio4_3_2` — **Completed**  
+**File:** `src/main/java/edu/eci/arsw/networking/ejercicio4_3_2/TrigServer.java`
 
-Build a **TCP server** that evaluates trigonometric functions:
-1. Default operation: **cosine**
-2. Receive a number → respond with `cos(number)`, `sin(number)`, or `tan(number)`
-3. Command `fun:sin` changes current operation to sine
-4. Command `fun:cos` changes current operation to cosine
-5. Command `fun:tan` changes current operation to tangent
+#### What it does
 
-**Example flow:**
+A TCP server that receives a number and responds with the result of a trigonometric function (cosine by default). The user can dynamically switch between sine, cosine, and tangent at runtime by sending `fun:sin`, `fun:cos`, or `fun:tan`. This teaches stateful server design — the server remembers the current operation between requests.
+
+#### Step-by-step implementation
+
+| Step | What we did | Why |
+|------|-------------|-----|
+| 1 | Import `java.util.function.DoubleUnaryOperator` | This functional interface stores the current operation as a function reference, avoiding verbose `if/else` chains on every evaluation |
+| 2 | Declare `private static DoubleUnaryOperator currentOp = Math::cos` | The default operation is cosine; `Math::cos` is a method reference assigned to the variable |
+| 3 | Create `ServerSocket` on port `35000` inside a `try-catch` | Same pattern as Exercise 4.3.1 — handle port conflicts |
+| 4 | Accept a client and set up `PrintWriter` / `BufferedReader` | Standard socket I/O setup for reading and writing text |
+| 5 | Read input line and check `startsWith("fun:")` | The `fun:` prefix is the protocol command to switch operations |
+| 6 | Extract the function name with `substring(4)`, trim and lowercase it | Normalize user input so `fun:SIN`, `Fun:Sin`, etc. all work |
+| 7 | Use a `switch` to assign `Math::sin`, `Math::cos`, or `Math::tan` to `currentOp` | The variable now points to the selected function for future calculations |
+| 8 | If input does NOT start with `fun:`, parse as `double` with `Double.parseDouble()` | The input is treated as a numeric operand |
+| 9 | Call `currentOp.applyAsDouble(number)` and send the result back | Applies whichever function is currently selected (sin, cos, or tan) |
+| 10 | Handle `NumberFormatException` if the input is neither `fun:...` nor a valid number | Prevents the server from crashing on invalid input |
+| 11 | Check for `"Bye."` to exit the loop and close resources | Clean shutdown sequence |
+
+#### Why this matters
+
+This exercise introduces **stateful protocol design** — the server maintains state (the current operation) across multiple client requests. This is a fundamental concept in:
+- **FTP servers** that remember the current directory
+- **Database connections** that remember transaction state
+- **Game servers** that track player state between moves
+
+Using `DoubleUnaryOperator` demonstrates Java's functional programming capabilities — storing and swapping behavior at runtime without conditionals.
+
+#### Key classes used
+
+| Class / Interface | Role |
+|-------------------|------|
+| `java.net.ServerSocket` | Listens for incoming connections |
+| `java.net.Socket` | Communication endpoint |
+| `DoubleUnaryOperator` | Functional interface that stores the current trig function |
+| `Math::sin / cos / tan` | Method references assigned dynamically |
+| `String.startsWith()` | Detects `fun:` commands |
+| `String.substring()` | Extracts the function name from the command |
+
+#### Example interaction
+
 ```
-Client sends:  0       → Server responds: 1.0    (cos(0))
-Client sends:  π/2     → Server responds: 0.0    (cos(π/2))
-Client sends:  fun:sin → (operation changes to sine)
-Client sends:  0       → Server responds: 0.0    (sin(0))
+Client sends: 0                  → Server responds: 1.0           (cos(0))
+Client sends: 1.5707963267948966 → Server responds: 6.12E-17      (cos(π/2) ≈ 0)
+Client sends: fun:sin            → Server responds: Operation changed to sin
+Client sends: 0                  → Server responds: 0.0           (sin(0))
+Client sends: fun:tan            → Server responds: Operation changed to tan
+Client sends: 0                  → Server responds: 0.0           (tan(0))
+Client sends: Bye.               → Connection closes
 ```
 
-**Key classes:** `java.net.ServerSocket`, `java.net.Socket`, `Math.sin()`, `Math.cos()`, `Math.tan()`
+#### Run
+
+Start the server:
+```bash
+run_ejercicio.bat 4_3_2
+```
+
+Then connect with a TCP client (port **35001**):
+```bash
+ncat localhost 35001
+```
 
 ---
 
