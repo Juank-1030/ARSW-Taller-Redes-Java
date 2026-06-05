@@ -1,4 +1,4 @@
-package edu.eci.arsw.networking;
+package edu.eci.arsw.networking.util;
 
 import java.io.*;
 import java.net.*;

@@ -28,7 +28,7 @@ rem --- second arg "client": run generic TCP client ---
 if "%2"=="client" (
     echo.
     echo [INFO] Connecting to localhost:%PORT% ...
-    java -cp "%CPATH%" edu.eci.arsw.networking.TcpClient localhost %PORT%
+    java -cp "%CPATH%" edu.eci.arsw.networking.util.TcpClient localhost %PORT%
     exit /b %ERRORLEVEL%
 )
 
