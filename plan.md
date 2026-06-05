@@ -123,17 +123,77 @@ mvn compile exec:java "-Dexec.mainClass=edu.eci.arsw.networking.ejercicio2.URLBr
 
 ---
 
-## Ejercicio 4.3.1 — Square Server
+## Ejercicio 4.3.1 — Square Server ✅
 
 **Paquete:** `edu.eci.arsw.networking.ejercicio4_3_1`  
-**Estado:** Pendiente
+**Archivo:** `SquareServer.java`  
+**Estado:** Completado — ver `src/main/java/edu/eci/arsw/networking/ejercicio4_3_1/SquareServer.java`
 
----
+### Requisito
 
-## Ejercicio 4.3.2 — Trig Server
+> Escriba un servidor que reciba un número y responda el cuadrado de este número.
+
+### Implementación
+
+1. Crear `ServerSocket` en el puerto `35000`
+2. Aceptar una conexión cliente con `serverSocket.accept()`
+3. Obtener `PrintWriter` (salida) y `BufferedReader` (entrada) del socket
+4. Bucle: leer línea → parsear como `double` → calcular cuadrado → responder
+5. Manejar `NumberFormatException` si la entrada no es un número válido
+6. Salir del bucle si el cliente envía `"Bye."`
+7. Cerrar todos los recursos al finalizar
+
+### Ejecución
+
+```bash
+run_ejercicio.bat 4_3_1
+```
+
+O con Maven:
+
+```bash
+mvn compile exec:java "-Dexec.mainClass=edu.eci.arsw.networking.ejercicio4_3_1.SquareServer"
+```
+
+### Verificación
+
+```bash
+# Desde otra terminal
+echo 5 | ncat localhost 35000
+# Esperado: 25.0
+
+## Ejercicio 4.3.2 — Trig Server ✅
 
 **Paquete:** `edu.eci.arsw.networking.ejercicio4_3_2`  
-**Estado:** Pendiente
+**Archivo:** `TrigServer.java`  
+**Estado:** Completado — ver `src/main/java/edu/eci/arsw/networking/ejercicio4_3_2/TrigServer.java`
+
+### Requisito
+
+> Escriba un servidor que pueda recibir un número y responda con una operación trigonométrica sobre este número. Puede recibir `fun:sin`, `fun:cos`, `fun:tan` para cambiar la operación. Por defecto empieza calculando el coseno.
+
+### Implementación
+
+1. Crear `ServerSocket` en puerto `35000`
+2. Estado inicial: operación = `Math::cos`
+3. Bucle de lectura:
+   - Si el mensaje empieza con `fun:` → cambiar operación a sin/cos/tan
+   - Sino → parsear como `double`, aplicar operación actual, responder
+4. Usar `DoubleUnaryOperator` como variable de función para evitar `if/switch` en cada evaluación
+5. Manejar `NumberFormatException` para entradas inválidas
+6. Cerrar recursos al finalizar
+
+### Verificación esperada (puerto 35001)
+
+| Cliente envía | Servidor responde |
+|---------------|-------------------|
+| `0` | `1.0` (cos(0)) |
+| `1.5707963267948966` | `~0.0` (cos(π/2)) |
+| `fun:sin` | `Operation changed to sin` |
+| `0` | `0.0` (sin(0)) |
+| `fun:tan` | `Operation changed to tan` |
+| `0` | `0.0` (tan(0)) |
+| `Bye.` | _(cierra conexión)_ |
 
 ---
 
