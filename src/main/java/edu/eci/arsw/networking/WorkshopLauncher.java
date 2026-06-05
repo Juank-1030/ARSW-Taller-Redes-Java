@@ -2,6 +2,7 @@ package edu.eci.arsw.networking;
 
 import java.lang.reflect.Method;
 import java.util.Scanner;
+import edu.eci.arsw.networking.util.TcpClient;
 
 public class WorkshopLauncher {
 
@@ -101,9 +102,6 @@ public class WorkshopLauncher {
     }
 
     private static int getPort(String pkg) {
-        switch (pkg) {
-            case "4_3_2": return 35001;
-            default:      return 35000;
-        }
+        return 35000;
     }
 }
